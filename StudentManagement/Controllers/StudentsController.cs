@@ -95,6 +95,12 @@ namespace StudentManagement.Controllers
             }  
         }
 
+        [HttpGet]
+        public IActionResult GetTestMessage_CD_CI_TEST()
+        {
+            return Ok(new { message = "Hello from TestController!" });
+        }
+
         private bool StudentExists(int id)
         {
             return _context.Students.Any(e => e.Id == id);
