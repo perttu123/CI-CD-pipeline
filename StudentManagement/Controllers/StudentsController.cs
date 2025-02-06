@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StudentManagement.Models;
 using StudentManagement.Data;
 
+//KOMMENTTI
 namespace StudentManagement.Controllers
 {
     [ApiController]
