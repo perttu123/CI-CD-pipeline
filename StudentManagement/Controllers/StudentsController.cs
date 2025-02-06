@@ -96,10 +96,18 @@ namespace StudentManagement.Controllers
             }  
         }
 
-        [HttpGet]
-        public IActionResult GetTestMessage_CD_CI_TEST()
+        [HttpGet("get")]
+        public IActionResult GetMockData()
         {
-            return Ok(new { message = "Hello from TestController!" });
+            var mockData = new 
+            {
+                id = 1,
+                name = "Sample Item",
+                description = "This is a mock item for API testing",
+                price = 19.99
+            };
+
+            return Ok(mockData);
         }
 
         private bool StudentExists(int id)
