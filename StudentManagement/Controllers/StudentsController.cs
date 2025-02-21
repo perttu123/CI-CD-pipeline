@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using StudentManagement.Models;
 using StudentManagement.Data;
 using Microsoft.AspNetCore.Authorization;
+using StudentManagement.Services;
 
 //KOMMENTTI
 namespace StudentManagement.Controllers
@@ -13,10 +14,12 @@ namespace StudentManagement.Controllers
     public class StudentsController : ControllerBase
     {
         private readonly StudentContext _context;
+        private readonly IKeyVaultSecretManager _keyVaultSecretManager;
 
-        public StudentsController(StudentContext context)
+        public StudentsController(StudentContext context, IKeyVaultSecretManager keyVaultSecretManager)
         {
             _context = context;
+            _keyVaultSecretManager = keyVaultSecretManager;
         }
 
         [Authorize]
@@ -40,6 +43,13 @@ namespace StudentManagement.Controllers
             }
         }
 
+        [HttpGet("GetKeyVaultSecret")]
+        public async Task<IActionResult> GetKeyVaultSecret(string secret)
+        {
+            var response = await _keyVaultSecretManager.GetSecretAsync(secret);
+            return Ok(response);
+        }
+        
         [Authorize(Policy = "RequireAdminRole")]
         [HttpPost]
         public async Task<ActionResult<Student>> CreateStudent(Student student)

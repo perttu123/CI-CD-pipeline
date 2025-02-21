@@ -1,10 +1,13 @@
 using System.Security.Claims;
 using System.Text;
+using StudentManagement.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StudentManagement.Data;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +30,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = "MyTestAuthServer", // Esim. https://my.authserver.com
         ValidAudience = "MyTestApiUsers", // Esim. https://my.apiusers.com
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key_that_is_at_least_32_bytes_long"))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("KeyVault:jwt-secret"))
     };
 });
 
@@ -67,6 +70,7 @@ builder.Services.AddEndpointsApiExplorer();
          }
      });
  });
+builder.Services.AddSingleton<IKeyVaultSecretManager, KeyVaultSecretManager>();
 
 var app = builder.Build();
 
@@ -75,6 +79,11 @@ var app = builder.Build();
 //{
 
 //}
+var client = new SecretClient(new Uri("https://testivaultti.vault.azure.net/"), new DefaultAzureCredential());
+
+KeyVaultSecret secret = client.GetSecret("jwt-secret");
+
+Console.WriteLine($"Secret Value: {secret.Value}");
 
 app.UseSwagger();
 app.UseSwaggerUI();
