@@ -4,6 +4,7 @@ using StudentManagement.Models;
 using StudentManagement.Data;
 using Microsoft.AspNetCore.Authorization;
 
+//KOMMENTTI
 namespace StudentManagement.Controllers
 {
     [ApiController]
@@ -112,6 +113,20 @@ namespace StudentManagement.Controllers
                 // Jos tunnistetiedot ovat väärin, palauta virheilmoitus
                 return Unauthorized("Käyttäjätunnus tai salasana on väärin.");
             }
+        }
+
+        [HttpGet("get")]
+        public IActionResult GetMockData()
+        {
+            var mockData = new 
+            {
+                id = 1,
+                name = "Sample Item",
+                description = "This is a mock item for API testing",
+                price = 19.99
+            };
+
+            return Ok(mockData);
         }
 
         private bool StudentExists(int id)
