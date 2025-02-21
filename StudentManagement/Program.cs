@@ -22,15 +22,32 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
+    // options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+    // {
+    //     ValidateIssuer = true,
+    //     ValidateAudience = true,
+    //     ValidateLifetime = true,
+    //     ValidateIssuerSigningKey = true,
+    //     ValidIssuer = "MyTestAuthServer", // Esim. https://my.authserver.com
+    //     ValidAudience = "MyTestApiUsers", // Esim. https://my.apiusers.com
+    //     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Lokaali-secret-jwt-tokeni-tähän-u12u3j1u3u123ju12-asdasdasdasdasdsa"))
+    // };
+    // Retrieve the JWT secret from Azure Key Vault
+    var keyVaultUrl = builder.Configuration["KeyVault:BaseUrl"];
+    var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+    KeyVaultSecret secret = client.GetSecret("jwt-secret");  // Replace "jwt-secret" with the actual name of your secret
+    
+    var jwtSecret = secret.Value;  // This is the JWT secret fetched from Key Vault
+
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "MyTestAuthServer", // Esim. https://my.authserver.com
-        ValidAudience = "MyTestApiUsers", // Esim. https://my.apiusers.com
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Lokaali-secret-jwt-tokeni-tähän-u12u3j1u3u123ju12-asdasdasdasdasdsa"))
+        ValidIssuer = "MyTestAuthServer", // Your issuer URL
+        ValidAudience = "MyTestApiUsers", // Your audience URL
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))  // Use the secret fetched from Key Vault
     };
 });
 
