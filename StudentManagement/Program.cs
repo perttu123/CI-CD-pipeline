@@ -72,20 +72,20 @@ builder.Services.AddEndpointsApiExplorer();
      });
  });
 
-// if (builder.Environment.IsDevelopment())
-// {
-//     builder.Configuration.AddUserSecrets<Program>();
-// }
-// else
-// {
-//     builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-//          .AddEnvironmentVariables();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+else
+{
+    builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+         .AddEnvironmentVariables();
 
-//     var keyVaultUrl = builder.Configuration["KeyVault:BaseUrl"];
+    var keyVaultUrl = builder.Configuration["KeyVault:BaseUrl"];
 
 
-//     builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
-// }
+    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
+}
 builder.Services.AddSingleton<IKeyVaultSecretManager, KeyVaultSecretManager>();
 
 var app = builder.Build();
