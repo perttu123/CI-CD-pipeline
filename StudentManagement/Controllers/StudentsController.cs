@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudentManagement.Models;
 using StudentManagement.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudentManagement.Controllers
 {
@@ -17,17 +18,10 @@ namespace StudentManagement.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Student>>> GetStudents2()
-        {
-            return await _context.Students.ToListAsync();
-
-        }
-
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Student>>> GetStudents(){
             return await _context.Students.ToListAsync();
-
         }
         
         [HttpGet("{id}")]
@@ -45,6 +39,7 @@ namespace StudentManagement.Controllers
             }
         }
 
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPost]
         public async Task<ActionResult<Student>> CreateStudent(Student student)
         {
@@ -93,6 +88,30 @@ namespace StudentManagement.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(studentToDelete);
             }  
+        }
+        
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] UserCredentials credentials)
+        {
+            // Tarkista tässä credentials-olion arvot, esimerkiksi tietokantahakujen kautta
+            if (credentials.Username == "testuser" && credentials.Password == "testpassword")
+            {
+                // Jos tunnistetiedot ovat oikein, generoi JWT-token ja palauta se
+                var tokenService = new TokenService(); // Oletetaan, että TokenService on luokka, joka generoi tokenin
+                var token = tokenService.GenerateToken(credentials.Username, false);
+                return Ok(new { Token = token });
+            }
+            else if(credentials.Username == "admin" && credentials.Password == "adminpassword")
+            {
+                var tokenService = new TokenService();
+                var token = tokenService.GenerateToken(credentials.Username, true);
+                return Ok(new {Token = token});
+            }
+            else
+            {
+                // Jos tunnistetiedot ovat väärin, palauta virheilmoitus
+                return Unauthorized("Käyttäjätunnus tai salasana on väärin.");
+            }
         }
 
         private bool StudentExists(int id)
