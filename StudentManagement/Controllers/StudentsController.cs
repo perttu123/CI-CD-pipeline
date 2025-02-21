@@ -15,11 +15,13 @@ namespace StudentManagement.Controllers
     {
         private readonly StudentContext _context;
         private readonly IKeyVaultSecretManager _keyVaultSecretManager;
+        private readonly IConfiguration _configuration;
 
-        public StudentsController(StudentContext context, IKeyVaultSecretManager keyVaultSecretManager)
+        public StudentsController(StudentContext context, IKeyVaultSecretManager keyVaultSecretManager, IConfiguration configuration)
         {
             _context = context;
             _keyVaultSecretManager = keyVaultSecretManager;
+            _configuration = configuration;
         }
 
         [Authorize]
@@ -49,7 +51,14 @@ namespace StudentManagement.Controllers
             var response = await _keyVaultSecretManager.GetSecretAsync(secret);
             return Ok(response);
         }
-        
+
+        [HttpGet("GetSecret")]
+        public async Task<IActionResult> GetSecret(string secret)
+        {
+            var response = _configuration[secret];
+            return Ok(response);
+        }
+
         [Authorize(Policy = "RequireAdminRole")]
         [HttpPost]
         public async Task<ActionResult<Student>> CreateStudent(Student student)
