@@ -30,7 +30,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = "MyTestAuthServer", // Esim. https://my.authserver.com
         ValidAudience = "MyTestApiUsers", // Esim. https://my.apiusers.com
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("KeyVault:jwt-secret"))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Lokaali-secret-jwt-tokeni-tähän-u12u3j1u3u123ju12-asdasdasdasdasdsa"))
     };
 });
 
@@ -86,7 +86,7 @@ else
 
     builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 }
-builder.Services.AddSingleton<IKeyVaultSecretManager, KeyVaultSecretManager>();
+// builder.Services.AddSingleton<IKeyVaultSecretManager, KeyVaultSecretManager>();
 
 var app = builder.Build();
 
