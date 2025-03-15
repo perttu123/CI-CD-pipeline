@@ -15,6 +15,25 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<StudentContext>(options =>
     options.UseSqlServer(connectionString));
 
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>();
+}
+else
+{
+    builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+         .AddEnvironmentVariables();
+
+    var keyVaultUrl = builder.Configuration["KeyVault:BaseUrl"];
+
+    var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
+
+    KeyVaultSecret secret = client.GetSecret("jwt-secret");
+
+    builder.Configuration["jwt-secret"] = secret.Value;
+}
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -22,22 +41,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    // options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
-    // {
-    //     ValidateIssuer = true,
-    //     ValidateAudience = true,
-    //     ValidateLifetime = true,
-    //     ValidateIssuerSigningKey = true,
-    //     ValidIssuer = "MyTestAuthServer", // Esim. https://my.authserver.com
-    //     ValidAudience = "MyTestApiUsers", // Esim. https://my.apiusers.com
-    //     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Lokaali-secret-jwt-tokeni-tähän-u12u3j1u3u123ju12-asdasdasdasdasdsa"))
-    // };
-    // Retrieve the JWT secret from Azure Key Vault
-    var keyVaultUrl = builder.Configuration["KeyVault:BaseUrl"];
-    var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-    KeyVaultSecret secret = client.GetSecret("jwt-secret");  // Replace "jwt-secret" with the actual name of your secret
-    
-    var jwtSecret = secret.Value;  // This is the JWT secret fetched from Key Vault
+
+    var jwtSecret = builder.Configuration["jwt-secret"];
 
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
@@ -89,22 +94,8 @@ builder.Services.AddEndpointsApiExplorer();
      });
  });
 
-if (builder.Environment.IsDevelopment())
-{
-    builder.Configuration.AddUserSecrets<Program>();
-}
-else
-{
-    builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-         .AddEnvironmentVariables();
-
-    var keyVaultUrl = builder.Configuration["KeyVault:BaseUrl"];
-
-
-    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
-}
 builder.Services.AddSingleton<IKeyVaultSecretManager, KeyVaultSecretManager>();
-
+builder.Services.AddSingleton<TokenService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
