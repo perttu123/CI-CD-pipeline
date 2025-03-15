@@ -54,11 +54,11 @@ namespace StudentManagement.Controllers
             return Ok(response);
         }
 
-        [HttpGet("GetSecret")]
-        public async Task<IActionResult> GetSecret(string secret)
+        [Authorize(Policy = "RequireAdminRole")]
+        [HttpGet("GetAdminSecret")]
+        public IActionResult GetSecret()
         {
-            var response = _configuration[secret];
-            return Ok(response);
+            return Ok("Tämä on adminille tarkoitettu tieto.");
         }
 
         [Authorize(Policy = "RequireAdminRole")]
