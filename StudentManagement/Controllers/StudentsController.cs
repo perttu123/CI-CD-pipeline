@@ -16,12 +16,14 @@ namespace StudentManagement.Controllers
         private readonly StudentContext _context;
         private readonly IKeyVaultSecretManager _keyVaultSecretManager;
         private readonly IConfiguration _configuration;
+        private readonly TokenService _tokenService;
 
-        public StudentsController(StudentContext context, IKeyVaultSecretManager keyVaultSecretManager, IConfiguration configuration)
+        public StudentsController(StudentContext context, IKeyVaultSecretManager keyVaultSecretManager, IConfiguration configuration, TokenService tokenService)
         {
             _context = context;
             _keyVaultSecretManager = keyVaultSecretManager;
             _configuration = configuration;
+            _tokenService = tokenService;
         }
 
         [Authorize]
@@ -117,14 +119,13 @@ namespace StudentManagement.Controllers
             if (credentials.Username == "testuser" && credentials.Password == "testpassword")
             {
                 // Jos tunnistetiedot ovat oikein, generoi JWT-token ja palauta se
-                var tokenService = new TokenService(); // Oletetaan, että TokenService on luokka, joka generoi tokenin
-                var token = tokenService.GenerateToken(credentials.Username, false);
+                
+                var token = _tokenService.GenerateToken(credentials.Username, false);
                 return Ok(new { Token = token });
             }
             else if(credentials.Username == "admin" && credentials.Password == "adminpassword")
             {
-                var tokenService = new TokenService();
-                var token = tokenService.GenerateToken(credentials.Username, true);
+                var token = _tokenService.GenerateToken(credentials.Username, true);
                 return Ok(new {Token = token});
             }
             else
