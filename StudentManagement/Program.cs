@@ -27,11 +27,7 @@ else
 
     var keyVaultUrl = builder.Configuration["KeyVault:BaseUrl"];
 
-    var client = new SecretClient(new Uri(keyVaultUrl), new DefaultAzureCredential());
-
-    KeyVaultSecret secret = client.GetSecret("jwt-secret");
-
-    builder.Configuration["jwt-secret"] = secret.Value;
+    builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential());
 }
 
 builder.Services.AddAuthentication(options =>

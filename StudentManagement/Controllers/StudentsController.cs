@@ -54,6 +54,13 @@ namespace StudentManagement.Controllers
             return Ok(response);
         }
 
+        [HttpGet("GetKeyVaultSecretFromConfiguration")]
+        public async Task<IActionResult> GetKeyVaultSecretFromConfiguration(string secret)
+        {
+            var response = _configuration[secret];
+            return Ok(response);
+        }
+
         [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("GetAdminSecret")]
         public IActionResult GetSecret()
